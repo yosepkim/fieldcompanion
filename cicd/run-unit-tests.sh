@@ -2,7 +2,7 @@
 
 set +ex
 
-gem list bundler
+gem install bundler
 
 cd git-source
 bundle install
