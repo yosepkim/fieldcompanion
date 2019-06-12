@@ -1,4 +1,10 @@
 ---
+resource_types:
+- name: slack-notification
+  type: docker-image
+  source:
+    repository: cfcommunity/slack-notification-resource
+
 resources:
 - name: git-source
   type: git
@@ -8,12 +14,17 @@ resources:
 - name: deploy-cf
   type: cf
   source:
-    api: {{CF_API}}
-    username: {{CF_USER}}
-    password: {{CF_PASSWORD}}
-    organization: {{CF_ORG}}
-    space: {{CF_SPACE}}
+    api: ((CF_API))
+    username: ((CF_USER))
+    password: ((CF_PASSWORD))
+    organization: ((CF_ORG))
+    space: ((CF_SPACE))
     skip_cert_check: false
+
+- name: notify
+  type: slack-notification
+  source:
+    url: ((SLACK_WEBHOOK))
 
 jobs:
 - name: Unit Tests
@@ -34,4 +45,13 @@ jobs:
       file: git-source/cicd/task_precompile_assets.yml
     - put: deploy-cf
       params:
-        path: git-source
+        manifest: precompiled-assets/cicd/manifest.yml
+        path: precompiled-assets
+      on_success:
+        put: notify
+        params:
+          text: "Deployment succeeded!"
+      on_failure:
+        put: notify
+        params:
+          text: "Deployment failed!"

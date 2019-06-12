@@ -1,0 +1,24 @@
+---
+platform: linux
+image_resource:
+  type: docker-image
+  source:
+    repository: ruby
+    tag: 2.5.5-stretch
+inputs:
+- name: git-source
+outputs:
+- name: precompiled-assets
+
+run:
+  path: sh
+  args:
+  - -exc
+  - |
+    env
+    gem install bundler
+    cd git-source
+    bundle install
+    RAILS_ENV=production bundle exec rake assets:precompile
+    cd ..
+    cp -R git-source/* precompiled-assets/

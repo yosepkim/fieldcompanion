@@ -1,0 +1,5 @@
+---
+applications:
+- name: field-companion
+  buildpacks:
+  - https://github.com/cloudfoundry/ruby-buildpack.git
