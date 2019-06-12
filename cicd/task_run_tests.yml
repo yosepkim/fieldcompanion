@@ -4,7 +4,7 @@ image_resource:
   type: docker-image
   source:
     repository: ruby
-    tag: 2.5.5-alpine3.9
+    tag: 2.5.5-stretch
 inputs:
 - name: git-source
 
