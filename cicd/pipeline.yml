@@ -1,0 +1,37 @@
+---
+resources:
+- name: git-source
+  type: git
+  source:
+    uri: https://github.com/yosepkim/fieldcompanion.git
+
+- name: deploy-cf
+  type: cf
+  source:
+    api: {{CF_API}}
+    username: {{CF_USER}}
+    password: {{CF_PASSWORD}}
+    organization: {{CF_ORG}}
+    space: {{CF_SPACE}}
+    skip_cert_check: false
+
+jobs:
+- name: Unit Tests
+  public: false
+  plan:
+    - get: git-source
+      trigger: true
+    - task: Run Unit Tests
+      file: git-source/cicd/task_run_tests.yml
+
+- name: Build
+  public: false
+  plan:
+    - get: git-source
+      passed: [Unit Tests]
+      trigger: true
+    - task: Precompile Assets
+      file: git-source/cicd/task_precompile_assets.yml
+    - put: deploy-cf
+      params:
+        path: git-source
